@@ -82,6 +82,65 @@ def summarize_results(res: Dict[str, Any], generators: Set[str] = None) -> None:
         print(f"Blackout zones (no generators) count: {len(blackout)}")
     print("--------------------------")
 
+def run_simulation_to_dict(
+    file: str,
+    wind: float,
+    method: str,
+    k: int,
+    generators: List[str] = None,
+) -> Dict[str, Any]:
+    """
+    Same core logic as run_simulation, but returns a plain dict
+    so the web UI can render it instead of just printing.
+    """
+    gens = set(generators or [])
+
+    # Load graph either from .py module or JSON, same as run_simulation
+    if file.lower().endswith(".py"):
+        g, py_gens = load_graph_from_py(file)
+        gens.update(py_gens)
+    else:
+        g = load_graph_from_json(file)
+
+    # Choose reinforcement set
+    selected: List[str] = []
+    if method == "greedy":
+        selected = g.greedy_select_top_k_reinforcements(wind, k)
+    elif method == "mst":
+        mst = g.kruskal_reinforcement_plan()
+        selected = [e.id for e in mst][:k]
+    elif method == "none":
+        selected = []
+    else:
+        raise ValueError(f"unknown method: {method}")
+
+    # Run simulation with those reinforcements
+    res = g.simulate_with_reinforcements(wind, set(selected))
+
+    # Build a serializable summary dict
+    result: Dict[str, Any] = {
+        "file": file,
+        "wind": wind,
+        "method": method,
+        "k": k,
+        "selected": selected,
+        "surviving": [e.id for e in res.get("surviving", [])],
+        "failed": [e.id for e in res.get("failed", [])],
+        "components": [sorted(list(c)) for c in res.get("components", [])],
+        "generators": list(gens),
+    }
+
+    # blackout zones (components with no generators)
+    if gens:
+        blackout = [
+            sorted(list(c))
+            for c in g.blackout_zones(gens, res.get("surviving"))
+        ]
+    else:
+        blackout = []
+
+    result["blackouts"] = blackout
+    return result
 
 def run_simulation(file: str, wind: float, method: str, k: int, out: str = None, generators: List[str] = None):
     # Support python module graphs (path endswith .py) or JSON by extension
