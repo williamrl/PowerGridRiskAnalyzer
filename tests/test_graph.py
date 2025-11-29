@@ -47,10 +47,10 @@ def test_simulate_wind_failures_and_components():
 
 
 def test_greedy_selection_reduces_failures():
-    g = make_samplegraph()
+    g = make_sample_graph()
     wind = 7.0
     # baseline failed count
-    , baseline_failed = g.simulate_wind_failures(wind)
+    _, baseline_failed = g.simulate_wind_failures(wind)
     baseline_count = len(baseline_failed)
     selected = g.greedy_select_top_k_reinforcements(wind, 1)
     assert isinstance(selected, list)
