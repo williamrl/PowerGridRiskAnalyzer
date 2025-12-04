@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Power Grid Risk Analyzer - Results</title>
+  </head>
+  <body>
+    <h1>Power Grid Risk Analyzer</h1>
+    <p><b>Wind:</b> {{ wind }}</p>
+    <p><b>Method:</b> {{ method }}</p>
+    <p><b>k:</b> {{ k }}</p>
+    <p><b>Selected reinforcements:</b> {{ selected }}</p>
+    <p><b>Surviving edges ({{ surviving | length }}):</b> {{ surviving }}</p>
+    <p><b>Failed edges ({{ failed | length }}):</b> {{ failed }}</p>
+    <p><b>Blackout zones count:</b> {{ blackouts | length }}</p>
+      <h1>Simulation Results</h1>
+      <p>Wind: {{ wind }}</p>
+      <p>Method: {{ method }}</p>
+      <p>Reinforcements: {{ reinforcements }}</p>
+      <h2>Summary</h2>
+      <p>Surviving nodes: {{ results.surviving|length }}</p>
+      <p>Failed nodes: {{ results.failed|length }}</p>
+      <h3>Components</h3>
+      <pre>{{ results.components }}</pre>
+      <h3>Blackouts</h3>
+      <pre>{{ results.blackouts }}</pre>
+
+      <h2>Interactive Graph</h2>
+      <div>
+        <svg id="graph-svg" width="600" height="600" style="border:1px solid #ccc"></svg>
+      </div>
+
+      <script id="sim-data" type="application/json">{{ results | tojson }}</script>
+      <script src="/static/js/graph.js"></script>
+      <script>
+        // When graph.js loads, render the graph into the svg using the raw data
+        (function(){
+          const dataEl = document.getElementById('sim-data');
+          const json = JSON.parse(dataEl.textContent);
+          const nodes = json.nodes || [];
+          const edges = json.edges || [];
+          const surviving = json.surviving || [];
+          const failed = json.failed || [];
+          // call renderer: renderGraph(svgId, nodes, edges, survivingIds, failedIds)
+          renderGraph('graph-svg', nodes, edges, surviving, failed);
+        })();
+      </script>
+      {% if plot_data %}
+      <h2>Server-side Plot</h2>
+      <div>
+        <img src="{{ plot_data }}" alt="Surviving fraction vs wind" style="max-width:100%;border:1px solid #ddd">
+      </div>
+      {% endif %}
+    <a href="/">Run another simulation</a>
+  </body>
+</html>
