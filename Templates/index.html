@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Power Grid Risk Analyzer</title>
+  </head>
+  <body>
+    <h1>Power Grid Risk Analyzer</h1>
+    <form method="post" enctype="multipart/form-data">
+      <label>Choose example graph:
+        <select name="dataset">
+          <option value="data/example_graph.py">example_graph.py</option>
+          <option value="data/example_graph2.py">example_graph2.py</option>
+        </select>
+      </label>
+      <br><small>Or upload a JSON graph file (edges list with u,v,strength,id)</small>
+      <br><input type="file" name="upload" accept="application/json">
+      <br><br>
+      <label>Wind strength:
+        <input type="number" step="0.1" name="wind" value="{{ default_wind }}">
+      </label><br><br>
+      <label>Method:
+        <select name="method">
+          <option value="greedy">Greedy</option>
+          <option value="mst">MST</option>
+          <option value="none">None</option>
+        </select>
+      </label><br><br>
+      <label>k (number of reinforcements):
+        <input type="number" name="k" value="1">
+      </label><br><br>
+      <label>Generators (comma-separated node ids):
+        <input type="text" name="generators" placeholder="A,B">
+      </label><br><br>
+      <input type="submit" value="Run Simulation">
+    </form>
+  </body>
+</html>
