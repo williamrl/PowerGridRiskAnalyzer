@@ -2,7 +2,7 @@ from fastapi import FastAPI, Form, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from src.simulate import run_simulation_to_dict, load_graph_from_py, load_graph_from_json, generate_survival_plot
+from src.simulate import run_simulation_to_dict, load_graph_from_py, load_graph_from_json
 import base64
 from pathlib import Path
 
@@ -51,12 +51,8 @@ async def run(request: Request, wind: float = Form(...), method: str = Form('gre
             gens = [g.strip() for g in generators.split(',') if g.strip()]
 
         results = run_simulation_to_dict(file_path, wind=wind, method=method, k=k, generators=gens)
-        # generate a server-side plot and include as data URI for embedding
-        try:
-            png_bytes = generate_survival_plot(file_path, method, k, gens)
-            plot_data = "data:image/png;base64," + base64.b64encode(png_bytes).decode('ascii')
-        except Exception:
-            plot_data = None
+        # plot generation not yet implemented
+        plot_data = None
     finally:
         # cleanup temp file if created
         if temp_path and os.path.exists(temp_path):
