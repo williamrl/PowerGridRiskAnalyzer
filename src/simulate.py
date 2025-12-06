@@ -128,6 +128,9 @@ def run_simulation_to_dict(
         "failed": [e.id for e in res.get("failed", [])],
         "components": [sorted(list(c)) for c in res.get("components", [])],
         "generators": list(gens),
+        # Add graph structure for visualization
+        "nodes": sorted(list(g.nodes)),
+        "edges": [{"id": e.id, "u": e.u, "v": e.v, "strength": e.strength} for e in g.edges],
     }
 
     # blackout zones (components with no generators)
